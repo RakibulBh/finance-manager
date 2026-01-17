@@ -1,0 +1,257 @@
+#################################
+# GLOBAL
+#################################
+
+# Environment files (keep .env.example if you create one)
+.env*
+
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+
+# Security
+*.pem
+*.key
+*.cert
+*.crt
+
+#################################
+# FRONTEND (Next.js + React + TypeScript)
+#################################
+
+# Dependencies
+node_modules/
+frontend/.pnp
+frontend/.pnp.*
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
+
+# Next.js build output
+.next/
+frontend/.next/
+out/
+frontend/out/
+build/
+frontend/build/
+dist/
+frontend/dist/
+
+# Next.js / TypeScript
+next-env.d.ts
+frontend/next-env.d.ts
+*.tsbuildinfo
+frontend/*.tsbuildinfo
+
+# Vercel
+.vercel
+frontend/.vercel
+
+# Bun
+bun.lockb
+frontend/bun.lockb
+.bunx/
+
+# Vitest
+.vitest/
+frontend/.vitest/
+vitest.config.*.timestamp-*
+
+# Testing coverage
+coverage/
+frontend/coverage/
+.nyc_output/
+frontend/.nyc_output/
+
+# Biome cache
+.biome/
+frontend/.biome/
+
+#################################
+# BACKEND (Go)
+#################################
+
+# Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+backend/**/*.exe
+backend/**/*.exe~
+backend/**/*.dll
+backend/**/*.so
+backend/**/*.dylib
+
+# Go test binaries and output
+*.test
+backend/**/*.test
+main
+test
+testdata/
+
+# Go build output
+bin/
+backend/bin/
+dist/
+backend/dist/
+
+# Go workspace files
+go.work
+go.work.sum
+backend/go.work
+backend/go.work.sum
+
+# Go coverage
+*.out
+coverage.txt
+backend/coverage.out
+backend/coverage.html
+
+# Go vendor (if using vendoring)
+vendor/
+backend/vendor/
+
+# Go module cache
+**/go.sum.tmp
+
+# Air (hot reload) temp files
+tmp/
+backend/tmp/
+*.tmp
+backend/*.tmp
+
+#################################
+# DOCKER & DATABASES
+#################################
+
+# Docker
+.docker/
+docker-compose.override.yml
+*.dockerfile
+
+# PostgreSQL
+*.sql.bak
+*.dump
+
+#################################
+# TESTING
+#################################
+
+# General coverage
+coverage/
+*.coverage
+coverage.out
+coverage.html
+coverage.txt
+coverage-final.json
+lcov.info
+.nyc_output/
+
+# Test snapshots (if using)
+__snapshots__/
+
+# Test artifacts
+*.test.js
+*.spec.js.snap
+
+#################################
+# IDEs & EDITORS
+#################################
+
+# VSCode - ignore user-specific files but keep shared settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.vscode/*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+.vim/
+
+# Emacs
+\#*\#
+.\#*
+*~
+.emacs.desktop
+.emacs.desktop.lock
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+#################################
+# CI/CD & DEPLOYMENT
+#################################
+
+# GitHub Actions local testing
+.act/
+
+# Vercel
+.vercel/
+
+# Terraform (if added later)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+#################################
+# MISC
+#################################
+
+# Claude Code
+.claude/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.cache
+
+# Archives (usually shouldn't be committed)
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Large media files (unless using Git LFS)
+# *.mp4
+# *.mov
+# *.avi
+
+TODO.txt
+backend/results/
+backend/internal/workflow/results/
+
+.vscode/
+GEMINI.md
