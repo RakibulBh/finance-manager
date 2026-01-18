@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/plaid/plaid-go/v20/plaid"
+	"github.com/rakibulbh/ai-finance-manager/internal/logger"
 	"github.com/rakibulbh/ai-finance-manager/internal/models"
+	"go.uber.org/zap"
 )
 
 type WorkerServices struct {
@@ -70,12 +71,18 @@ func HandleSyncAccountTask(ctx context.Context, t *asynq.Task, svc *WorkerServic
 		// Find Account
 		acc, err := svc.Accounts.GetByPlaidID(ctx, item.FamilyID, plTx.AccountId)
 		if err != nil {
-			log.Printf("Account not found for Plaid ID %s, skipping transaction %s", plTx.AccountId, plTx.TransactionId)
+			logger.Warn("Account not found for Plaid ID, skipping transaction",
+				zap.String("plaid_account_id", plTx.AccountId),
+				zap.String("transaction_id", plTx.TransactionId))
 			continue
 		}
 
 		// Prepare Entry
-		date, _ := time.Parse("2006-01-02", plTx.Date)
+		date, err := time.Parse("2006-01-02", plTx.Date)
+		if err != nil {
+			logger.Error("Failed to parse date from Plaid transaction", zap.String("date", plTx.Date), zap.Error(err))
+			continue
+		}
 
 		currency := "USD"
 		if plTx.IsoCurrencyCode.Get() != nil {

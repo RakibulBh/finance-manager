@@ -30,14 +30,6 @@ func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 1. Get family_id from context (set by AuthMiddleware)
-	familyID, ok := r.Context().Value("user_id").(uuid.UUID) // Wait, AuthMiddleware set "user_id" but we need family_id or user.family_id
-	// Actually, the AuthMiddleware sets "user_id". We should probably set both or get family_id from user repo.
-	// Let's re-examine AuthMiddleware.
-	_ = familyID
-	_ = ok
-
-	// For now, let's assume we have family_id in context too. I'll update AuthMiddleware soon.
 	fID, ok := r.Context().Value("family_id").(uuid.UUID)
 	if !ok {
 		sendError(w, http.StatusUnauthorized, "Family ID missing from context")

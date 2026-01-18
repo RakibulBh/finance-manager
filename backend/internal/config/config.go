@@ -1,9 +1,8 @@
 package config
 
 import (
-	"log"
-
 	"github.com/joho/godotenv"
+	"github.com/rakibulbh/ai-finance-manager/internal/logger"
 	"github.com/spf13/viper"
 )
 
@@ -30,7 +29,7 @@ func LoadConfig() (*Config, error) {
 	// 1. Load .env file if it exists
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Println("No .env file found, relying on system environment variables")
+		logger.Warn("No .env file found, relying on system environment variables")
 	}
 
 	// 2. Set up Viper

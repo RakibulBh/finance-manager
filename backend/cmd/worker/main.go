@@ -2,26 +2,37 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rakibulbh/ai-finance-manager/internal/config"
 	"github.com/rakibulbh/ai-finance-manager/internal/jobs"
+	"github.com/rakibulbh/ai-finance-manager/internal/logger"
 	"github.com/rakibulbh/ai-finance-manager/internal/repository/postgres"
 	"github.com/rakibulbh/ai-finance-manager/internal/services"
+	"go.uber.org/zap"
 )
 
 func main() {
+	if err := logger.InitLogger(); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to initialize logger: %v\n", err)
+		os.Exit(1)
+	}
+	defer logger.Sync()
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("Could not load config: ", err)
+		logger.Error("Could not load config", zap.Error(err))
+		os.Exit(1)
 	}
 
 	// 1. Database
 	dbPool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("Unable to create connection pool: %v\n", err)
+		logger.Error("Unable to create connection pool", zap.Error(err))
+		os.Exit(1)
 	}
 	defer dbPool.Close()
 
@@ -51,8 +62,9 @@ func main() {
 		return jobs.HandleSyncAccountTask(ctx, t, svc)
 	})
 
-	log.Printf("Worker server started on %s", cfg.RedisAddr)
+	fmt.Printf("Worker server started on %s\n", cfg.RedisAddr)
 	if err := srv.Run(mux); err != nil {
-		log.Fatal(err)
+		logger.Error("Worker failed", zap.Error(err))
+		os.Exit(1)
 	}
 }

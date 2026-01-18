@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -11,7 +10,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/rakibulbh/ai-finance-manager/internal/logger"
 	"github.com/rakibulbh/ai-finance-manager/internal/models"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -66,7 +67,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
     familyID, err := h.repo.CreateFamily(r.Context(), familyName)
     if err != nil {
-        log.Printf("DB Error (Family): %v", err)
+		logger.Error("DB Error (Family)", zap.Error(err))
         sendError(w, http.StatusInternalServerError, "Failed to create family")
         return
     }
@@ -77,7 +78,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
             sendError(w, http.StatusConflict, "Email already registered")
             return
         }
-        log.Printf("DB Error: %v", err)
+        logger.Error("DB Error", zap.Error(err))
         sendError(w, http.StatusInternalServerError, "Failed to create user")
         return
     }
@@ -114,7 +115,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
         if err == pgx.ErrNoRows {
             sendError(w, http.StatusUnauthorized, "Invalid email or password")
         } else {
-            log.Printf("DB Error: %v", err)
+            logger.Error("DB Error", zap.Error(err))
             sendError(w, http.StatusInternalServerError, "Database error")
         }
         return
