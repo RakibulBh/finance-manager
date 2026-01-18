@@ -31,8 +31,10 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 
 	r.Route("/api", func(r chi.Router) {
 		// Public Routes
-		r.Post("/register", cfg.AuthHandler.Register)
-		r.Post("/login", cfg.AuthHandler.Login)
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", cfg.AuthHandler.Register)
+			r.Post("/login", cfg.AuthHandler.Login)
+		})
 
 		// Protected Routes
 		r.Group(func(r chi.Router) {
