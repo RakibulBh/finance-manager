@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +28,7 @@ func TestTransactionHandler_Create_Success(t *testing.T) {
 		Amount:       25.00,
 		Date:         time.Now(),
 		Name:         "Test Transaction",
-		CategoryID:   categoryID,
+		CategoryID:   &categoryID,
 		MerchantName: "Test Merchant",
 	}
 	body, _ := json.Marshal(reqBody)
@@ -36,7 +37,9 @@ func TestTransactionHandler_Create_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	handler.Create(w, req)
+	familyID := uuid.New()
+	ctx := context.WithValue(req.Context(), "family_id", familyID)
+	handler.Create(w, req.WithContext(ctx))
 
 	if w.Code != http.StatusCreated {
 		t.Errorf("Expected status 201, got %d. Body: %s", w.Code, w.Body.String())
@@ -74,7 +77,9 @@ func TestTransactionHandler_Create_NoMerchant(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	handler.Create(w, req)
+	familyID := uuid.New()
+	ctx := context.WithValue(req.Context(), "family_id", familyID)
+	handler.Create(w, req.WithContext(ctx))
 
 	if w.Code != http.StatusCreated {
 		t.Errorf("Expected status 201, got %d", w.Code)
@@ -99,7 +104,9 @@ func TestTransactionHandler_Create_DefaultDate(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	handler.Create(w, req)
+	familyID := uuid.New()
+	ctx := context.WithValue(req.Context(), "family_id", familyID)
+	handler.Create(w, req.WithContext(ctx))
 
 	if w.Code != http.StatusCreated {
 		t.Errorf("Expected status 201, got %d", w.Code)
@@ -123,7 +130,9 @@ func TestTransactionHandler_Create_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	handler.Create(w, req)
+	familyID := uuid.New()
+	ctx := context.WithValue(req.Context(), "family_id", familyID)
+	handler.Create(w, req.WithContext(ctx))
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Expected status 400, got %d", w.Code)
@@ -155,7 +164,9 @@ func TestTransactionHandler_Create_MerchantError(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	handler.Create(w, req)
+	familyID := uuid.New()
+	ctx := context.WithValue(req.Context(), "family_id", familyID)
+	handler.Create(w, req.WithContext(ctx))
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status 500, got %d", w.Code)
@@ -186,7 +197,9 @@ func TestTransactionHandler_Create_TransactionError(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	handler.Create(w, req)
+	familyID := uuid.New()
+	ctx := context.WithValue(req.Context(), "family_id", familyID)
+	handler.Create(w, req.WithContext(ctx))
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status 500, got %d", w.Code)
@@ -337,7 +350,9 @@ func TestTransactionHandler_Create_ReuseMerchant(t *testing.T) {
 	req1.Header.Set("Content-Type", "application/json")
 
 	w1 := httptest.NewRecorder()
-	handler.Create(w1, req1)
+	familyID := uuid.New()
+	ctx1 := context.WithValue(req1.Context(), "family_id", familyID)
+	handler.Create(w1, req1.WithContext(ctx1))
 
 	// Second transaction with same merchant
 	reqBody2 := CreateTransactionRequest{
@@ -352,7 +367,9 @@ func TestTransactionHandler_Create_ReuseMerchant(t *testing.T) {
 	req2.Header.Set("Content-Type", "application/json")
 
 	w2 := httptest.NewRecorder()
-	handler.Create(w2, req2)
+	// Same familyID
+	ctx2 := context.WithValue(req2.Context(), "family_id", familyID)
+	handler.Create(w2, req2.WithContext(ctx2))
 
 	if w2.Code != http.StatusCreated {
 		t.Errorf("Expected status 201, got %d", w2.Code)
@@ -384,7 +401,9 @@ func TestTransactionHandler_Create_DifferentMerchants(t *testing.T) {
 	req1.Header.Set("Content-Type", "application/json")
 
 	w1 := httptest.NewRecorder()
-	handler.Create(w1, req1)
+	familyID := uuid.New()
+	ctx1 := context.WithValue(req1.Context(), "family_id", familyID)
+	handler.Create(w1, req1.WithContext(ctx1))
 
 	// Second transaction with different merchant
 	reqBody2 := CreateTransactionRequest{
@@ -399,7 +418,8 @@ func TestTransactionHandler_Create_DifferentMerchants(t *testing.T) {
 	req2.Header.Set("Content-Type", "application/json")
 
 	w2 := httptest.NewRecorder()
-	handler.Create(w2, req2)
+	ctx2 := context.WithValue(req2.Context(), "family_id", familyID)
+	handler.Create(w2, req2.WithContext(ctx2))
 
 	if w2.Code != http.StatusCreated {
 		t.Errorf("Expected status 201, got %d", w2.Code)

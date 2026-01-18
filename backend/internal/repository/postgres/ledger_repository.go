@@ -16,17 +16,15 @@ func NewLedgerRepository(db *pgxpool.Pool) *LedgerRepository {
 	return &LedgerRepository{db: db}
 }
 
-func (r *LedgerRepository) GetOrCreateMerchant(ctx context.Context, name string) (uuid.UUID, error) {
+func (r *LedgerRepository) GetOrCreateMerchant(ctx context.Context, name string, familyID uuid.UUID) (uuid.UUID, error) {
 	var id uuid.UUID
 	query := `
-		INSERT INTO merchants (name)
-		VALUES ($1)
-		ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+		INSERT INTO merchants (name, family_id)
+		VALUES ($1, $2)
+		ON CONFLICT (name, family_id) DO UPDATE SET name = EXCLUDED.name
 		RETURNING id
 	`
-	// Note: The ON CONFLICT DO UPDATE is a trick to get the ID even if it exists.
-	// We need a unique constraint on merchants(name) for this to work.
-	err := r.db.QueryRow(ctx, query, name).Scan(&id)
+	err := r.db.QueryRow(ctx, query, name, familyID).Scan(&id)
 	return id, err
 }
 

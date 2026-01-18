@@ -18,6 +18,14 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
     return &UserRepository{db: db}
 }
 
+// CreateFamily creates a family and returns its ID
+func (r *UserRepository) CreateFamily(ctx context.Context, name string) (uuid.UUID, error) {
+    var id uuid.UUID
+    query := `INSERT INTO families (name) VALUES ($1) RETURNING id`
+    err := r.db.QueryRow(ctx, query, name).Scan(&id)
+    return id, err
+}
+
 // CreateUser creates a user and returns the created object
 func (r *UserRepository) CreateUser(ctx context.Context, email, password string, familyID uuid.UUID) (*models.User, error) {
     hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

@@ -6,15 +6,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rakibulbh/ai-finance-manager/internal/config"
 	"github.com/rakibulbh/ai-finance-manager/internal/repository/postgres"
 	"github.com/rakibulbh/ai-finance-manager/internal/rest"
-	authMW "github.com/rakibulbh/ai-finance-manager/internal/rest/middleware"
 	"github.com/rakibulbh/ai-finance-manager/internal/services"
 )
 
@@ -52,51 +48,13 @@ func main() {
 	plaidHandler := rest.NewPlaidHandler(plaidService, plaidRepo, asynqClient)
 
 	// 4. Router Setup
-	r := chi.NewRouter()
-
-	// Base Middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}))
-
-	// API Routes
-	r.Route("/api", func(r chi.Router) {
-		// Public Routes
-		r.Post("/register", authHandler.Register)
-		r.Post("/login", authHandler.Login)
-
-		// Protected Routes
-		r.Group(func(r chi.Router) {
-			r.Use(authMW.AuthMiddleware([]byte(cfg.JWTSecret)))
-
-			r.Route("/accounts", func(r chi.Router) {
-				r.Post("/", accountHandler.Create)
-				r.Get("/", accountHandler.List)
-			})
-
-			r.Route("/transactions", func(r chi.Router) {
-				r.Post("/", transactionHandler.Create)
-			})
-
-			r.Route("/transfers", func(r chi.Router) {
-				r.Post("/", transactionHandler.CreateTransfer)
-			})
-
-			r.Route("/investments", func(r chi.Router) {
-				r.Post("/trade", investmentHandler.CreateTrade)
-			})
-
-			r.Route("/plaid", func(r chi.Router) {
-				r.Post("/create_link_token", plaidHandler.CreateLinkToken)
-				r.Post("/exchange_public_token", plaidHandler.ExchangePublicToken)
-			})
-		})
+	r := rest.NewRouter(rest.RouterConfig{
+		AuthHandler:        authHandler,
+		AccountHandler:     accountHandler,
+		TransactionHandler: transactionHandler,
+		InvestmentHandler:  investmentHandler,
+		PlaidHandler:       plaidHandler,
+		JWTSecret:         cfg.JWTSecret,
 	})
 
 

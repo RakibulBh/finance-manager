@@ -24,6 +24,10 @@ func NewUserStore() *UserStore {
 	}
 }
 
+func (m *UserStore) CreateFamily(ctx context.Context, name string) (uuid.UUID, error) {
+	return uuid.New(), nil
+}
+
 func (m *UserStore) CreateUser(ctx context.Context, email, password string, familyID uuid.UUID) (*models.User, error) {
 	if m.CreateError != nil {
 		return nil, m.CreateError

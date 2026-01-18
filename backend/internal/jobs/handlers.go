@@ -32,7 +32,7 @@ type ItemStorage interface {
 }
 
 type LedgerStorage interface {
-    GetOrCreateMerchant(ctx context.Context, name string) (uuid.UUID, error)
+    GetOrCreateMerchant(ctx context.Context, name string, familyID uuid.UUID) (uuid.UUID, error)
 	CreateTransaction(ctx context.Context, entry *models.Entry, txDetail *models.Transaction) error
 }
 
@@ -94,7 +94,7 @@ func HandleSyncAccountTask(ctx context.Context, t *asynq.Task, svc *WorkerServic
 		// Prepare Transaction details
 		var merchantID *uuid.UUID
 		if plTx.MerchantName.Get() != nil {
-			mID, err := svc.Ledger.GetOrCreateMerchant(ctx, *plTx.MerchantName.Get())
+			mID, err := svc.Ledger.GetOrCreateMerchant(ctx, *plTx.MerchantName.Get(), item.FamilyID)
 			if err == nil {
 				merchantID = &mID
 			}

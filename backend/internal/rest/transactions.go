@@ -11,7 +11,7 @@ import (
 )
 
 type TransactionStore interface {
-	GetOrCreateMerchant(ctx context.Context, name string) (uuid.UUID, error)
+	GetOrCreateMerchant(ctx context.Context, name string, familyID uuid.UUID) (uuid.UUID, error)
 	CreateTransaction(ctx context.Context, entry *models.Entry, txDetail *models.Transaction) error
 	CreateTransfer(ctx context.Context, fromEntry, toEntry *models.Entry) error
 }
@@ -25,12 +25,12 @@ func NewTransactionHandler(repo TransactionStore) *TransactionHandler {
 }
 
 type CreateTransactionRequest struct {
-	AccountID    uuid.UUID `json:"account_id"`
-	Amount       float64   `json:"amount"`
-	Date         time.Time `json:"date"`
-	Name         string    `json:"name"`
-	CategoryID   uuid.UUID `json:"category_id"`
-	MerchantName string    `json:"merchant_name"`
+	AccountID    uuid.UUID  `json:"account_id"`
+	Amount       float64    `json:"amount"`
+	Date         time.Time  `json:"date"`
+	Name         string     `json:"name"`
+	CategoryID   *uuid.UUID `json:"category_id"`
+	MerchantName string     `json:"merchant_name"`
 }
 
 func (h *TransactionHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -40,15 +40,22 @@ func (h *TransactionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 1. Get/Create Merchant
-	var merchantID uuid.UUID
+	// 1. Get family_id
+	familyID, ok := r.Context().Value("family_id").(uuid.UUID)
+	if !ok {
+		sendError(w, http.StatusUnauthorized, "Family ID missing from context")
+		return
+	}
+
+	// 2. Get/Create Merchant
+	var merchantID *uuid.UUID
 	if req.MerchantName != "" {
-		id, err := h.repo.GetOrCreateMerchant(r.Context(), req.MerchantName)
+		id, err := h.repo.GetOrCreateMerchant(r.Context(), req.MerchantName, familyID)
 		if err != nil {
 			sendError(w, http.StatusInternalServerError, "Failed to handle merchant")
 			return
 		}
-		merchantID = id
+		merchantID = &id
 	}
 
 	// 2. Prepare Entry & Transaction
@@ -64,8 +71,8 @@ func (h *TransactionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	txDetail := &models.Transaction{
-		CategoryID: &req.CategoryID,
-		MerchantID: &merchantID,
+		CategoryID: req.CategoryID,
+		MerchantID: merchantID,
 		Kind:       "standard",
 	}
 

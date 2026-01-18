@@ -23,7 +23,7 @@ func NewTransactionStore() *TransactionStore {
 	}
 }
 
-func (m *TransactionStore) GetOrCreateMerchant(ctx context.Context, name string) (uuid.UUID, error) {
+func (m *TransactionStore) GetOrCreateMerchant(ctx context.Context, name string, familyID uuid.UUID) (uuid.UUID, error) {
 	if m.MerchantError != nil {
 		return uuid.Nil, m.MerchantError
 	}

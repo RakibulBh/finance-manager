@@ -16,6 +16,7 @@ import (
 )
 
 type UserStore interface {
+    CreateFamily(ctx context.Context, name string) (uuid.UUID, error)
     CreateUser(ctx context.Context, email, password string, familyID uuid.UUID) (*models.User, error)
     FindByEmail(ctx context.Context, email string) (*models.User, string, error)
 }
@@ -57,11 +58,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Generate a Family ID based on the family_name input (or just random)
-    // The prompt implies "family_name" comes in, but "family_id" goes out.
-    // We will generate a deterministic UUID based on the name, or just a new one.
-    // Let's create a new UUID for the family ID for this registration.
-    familyID := uuid.New()
+    // Create a family first
+    familyName := req.FamilyName
+    if familyName == "" {
+        familyName = "Default Family"
+    }
+
+    familyID, err := h.repo.CreateFamily(r.Context(), familyName)
+    if err != nil {
+        log.Printf("DB Error (Family): %v", err)
+        sendError(w, http.StatusInternalServerError, "Failed to create family")
+        return
+    }
 
     user, err := h.repo.CreateUser(r.Context(), req.Email, req.Password, familyID)
     if err != nil {
