@@ -1,15 +1,17 @@
 "use client";
 
+import { useAuthStore } from "@/store/useAuthStore";
 import {
     BarChart3,
     CreditCard,
     History,
     Home,
+    LogOut,
     Settings,
     Users
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { icon: Home, label: "Overview", href: "/" },
@@ -21,6 +23,13 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   return (
     <div className="w-72 h-screen border-r border-zinc-900 bg-black flex flex-col p-6 fixed left-0 top-0 overflow-y-auto">
@@ -51,10 +60,17 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="pt-6 border-t border-zinc-900">
-        <button className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-white w-full rounded-2xl hover:bg-zinc-900 transition-all">
-          <Settings className="w-5 h-5" />
+      <div className="pt-6 border-t border-zinc-900 space-y-2">
+        <Link href="/settings" className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-white w-full rounded-2xl hover:bg-zinc-900 transition-all group">
+          <Settings className="w-5 h-5 group-hover:text-white" />
           <span>Settings</span>
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-400 w-full rounded-2xl hover:bg-red-950/10 transition-all group"
+        >
+          <LogOut className="w-5 h-5 group-hover:text-red-400" />
+          <span>Log Out</span>
         </button>
       </div>
     </div>
