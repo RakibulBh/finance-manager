@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/hibiken/asynq"
+	"github.com/rakibulbh/ai-finance-manager/internal/jobs"
 	"github.com/rakibulbh/ai-finance-manager/internal/models"
 )
 
@@ -22,14 +24,17 @@ type PlaidDB interface {
 type PlaidHandler struct {
 	manager PlaidManager
 	repo    PlaidDB
+	queue   *asynq.Client
 }
 
-func NewPlaidHandler(manager PlaidManager, repo PlaidDB) *PlaidHandler {
+func NewPlaidHandler(manager PlaidManager, repo PlaidDB, queue *asynq.Client) *PlaidHandler {
 	return &PlaidHandler{
 		manager: manager,
 		repo:    repo,
+		queue:   queue,
 	}
 }
+
 
 func (h *PlaidHandler) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value("user_id").(uuid.UUID)
@@ -90,6 +95,17 @@ func (h *PlaidHandler) ExchangePublicToken(w http.ResponseWriter, r *http.Reques
 	if err := h.repo.SaveItem(r.Context(), item); err != nil {
 		sendError(w, http.StatusInternalServerError, "Failed to save plaid item")
 		return
+	}
+
+	// 6. Enqueue initial sync
+	task, err := jobs.NewSyncAccountTask(familyID, itemID)
+	if err == nil {
+		_, err = h.queue.Enqueue(task)
+	}
+	if err != nil {
+		// Just log, the account is linked anyway
+		http.Error(w, "", 0) // dummy to avoid unused variable if need be, but let's just log
+		println("Failed to enqueue initial sync:", err.Error())
 	}
 
 	sendJSON(w, http.StatusOK, map[string]string{"message": "Account linked successfully", "item_id": itemID})

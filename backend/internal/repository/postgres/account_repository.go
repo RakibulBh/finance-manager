@@ -103,3 +103,19 @@ func (r *AccountRepository) GetNetWorth(ctx context.Context, familyID uuid.UUID)
 	err := r.db.QueryRow(ctx, query, familyID).Scan(&netWorth)
 	return netWorth, err
 }
+
+func (r *AccountRepository) GetByPlaidID(ctx context.Context, familyID uuid.UUID, plaidAccountID string) (*models.Account, error) {
+	query := `
+		SELECT id, family_id, name, balance, currency, subtype, classification
+		FROM accounts
+		WHERE family_id = $1 AND plaid_account_id = $2
+	`
+	var acc models.Account
+	err := r.db.QueryRow(ctx, query, familyID, plaidAccountID).Scan(
+		&acc.ID, &acc.FamilyID, &acc.Name, &acc.Balance, &acc.Currency, &acc.Subtype, &acc.Classification,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &acc, nil
+}

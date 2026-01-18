@@ -58,3 +58,27 @@ func (r *PlaidRepository) GetItemsByFamily(ctx context.Context, familyID uuid.UU
 	}
 	return items, nil
 }
+
+func (r *PlaidRepository) GetItemByID(ctx context.Context, itemID string) (*models.PlaidItem, error) {
+	query := `
+		SELECT id, family_id, access_token, item_id, institution_id, institution_name, sync_cursor, status, created_at, updated_at
+		FROM plaid_items
+		WHERE item_id = $1
+	`
+	var item models.PlaidItem
+	err := r.db.QueryRow(ctx, query, itemID).Scan(
+		&item.ID, &item.FamilyID, &item.AccessToken, &item.ItemID,
+		&item.InstitutionID, &item.InstitutionName, &item.SyncCursor,
+		&item.Status, &item.CreatedAt, &item.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &item, nil
+}
+
+func (r *PlaidRepository) UpdateCursor(ctx context.Context, itemID string, cursor string) error {
+	query := `UPDATE plaid_items SET sync_cursor = $1, updated_at = NOW() WHERE item_id = $2`
+	_, err := r.db.Exec(ctx, query, cursor, itemID)
+	return err
+}

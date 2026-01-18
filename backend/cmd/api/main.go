@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rakibulbh/ai-finance-manager/internal/config"
 	"github.com/rakibulbh/ai-finance-manager/internal/repository/postgres"
@@ -16,6 +17,7 @@ import (
 	authMW "github.com/rakibulbh/ai-finance-manager/internal/rest/middleware"
 	"github.com/rakibulbh/ai-finance-manager/internal/services"
 )
+
 
 func main() {
 	cfg, err := config.LoadConfig()
@@ -39,13 +41,15 @@ func main() {
 
 	// 2. Services
 	plaidService := services.NewPlaidService(cfg.PlaidClientID, cfg.PlaidSecret, cfg.PlaidEnv, cfg.EncryptionKey)
+	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.RedisAddr})
+	defer asynqClient.Close()
 
 	// 3. Handlers
 	authHandler := rest.NewAuthHandler(userRepo, cfg.JWTSecret)
 	accountHandler := rest.NewAccountHandler(accountRepo)
 	transactionHandler := rest.NewTransactionHandler(ledgerRepo)
 	investmentHandler := rest.NewInvestmentHandler(investmentRepo)
-	plaidHandler := rest.NewPlaidHandler(plaidService, plaidRepo)
+	plaidHandler := rest.NewPlaidHandler(plaidService, plaidRepo, asynqClient)
 
 	// 4. Router Setup
 	r := chi.NewRouter()

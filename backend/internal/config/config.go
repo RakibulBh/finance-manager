@@ -20,7 +20,11 @@ type Config struct {
 
 	// Encryption
 	EncryptionKey string `mapstructure:"ENCRYPTION_KEY"`
+
+	// Redis
+	RedisAddr string `mapstructure:"REDIS_ADDR"`
 }
+
 
 func LoadConfig() (*Config, error) {
 	// 1. Load .env file if it exists
@@ -41,6 +45,7 @@ func LoadConfig() (*Config, error) {
 	viper.BindEnv("PLAID_SECRET")
 	viper.BindEnv("PLAID_ENV")
 	viper.BindEnv("ENCRYPTION_KEY")
+	viper.BindEnv("REDIS_ADDR")
 
 
 	var cfg Config

@@ -119,3 +119,13 @@ func (s *PlaidService) DecryptToken(encryptedToken string) (string, error) {
 
 	return string(plaintext), nil
 }
+
+func (s *PlaidService) SyncTransactions(ctx context.Context, accessToken string, cursor string) (plaid.TransactionsSyncResponse, error) {
+	request := plaid.NewTransactionsSyncRequest(accessToken)
+	if cursor != "" {
+		request.SetCursor(cursor)
+	}
+
+	resp, _, err := s.client.PlaidApi.TransactionsSync(ctx).TransactionsSyncRequest(*request).Execute()
+	return resp, err
+}
