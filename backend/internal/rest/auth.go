@@ -43,8 +43,6 @@ func NewAuthHandler(repo UserStore, jwtSecret string) *AuthHandler {
     }
 }
 
-
-
 // POST /register
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
     var req RegisterRequest
