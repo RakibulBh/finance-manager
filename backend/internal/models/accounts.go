@@ -3,14 +3,26 @@ package models
 import "github.com/google/uuid"
 
 type Account struct {
-	ID              uuid.UUID `db:"id" json:"id"`
-	FamilyID        uuid.UUID `db:"family_id" json:"familyId"`
-	Name            string    `db:"name" json:"name"`
-	Type            string    `db:"subtype" json:"type"` // "checking", "savings", "credit_card"
-	Balance         float64   `db:"balance" json:"balance"`
-	Currency        string    `db:"currency" json:"currency"`
-	Status          string    `db:"status" json:"status"` // "active", "archived"
+    ID             uuid.UUID `json:"id"`
+    FamilyID       uuid.UUID `json:"familyId"`
+    Name           string    `json:"name"`
+    Type           string    `json:"type"`           // "depository", "loan", "property", "credit_card"
+    Subtype        string    `json:"subtype"`        // "checking", "mortgage"
+    Classification string    `json:"classification"` // "asset", "liability"
+    Balance        float64   `json:"balance"`        // Raw number
+    Currency       string    `json:"currency"`
 
-	// Linking to Plaid
-	PlaidAccountID *uuid.UUID `db:"plaid_account_id" json:"plaidAccountId,omitempty"`
+    // Detailed Attributes (Optional, only filled if applicable)
+    PropertyDetails *PropertyDetails `json:"propertyDetails,omitempty"`
+    LoanDetails     *LoanDetails     `json:"loanDetails,omitempty"`
+}
+
+type PropertyDetails struct {
+    Address string `json:"address"`
+    Sqft    int    `json:"sqft"`
+}
+
+type LoanDetails struct {
+    InterestRate float64 `json:"interestRate"`
+    TermMonths   int     `json:"termMonths"`
 }

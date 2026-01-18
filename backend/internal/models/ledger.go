@@ -22,7 +22,7 @@ type Entry struct {
 
 // Transaction represents the 'transactions' table - specific info
 type Transaction struct {
-	ID         uuid.UUID `db:"id" json:"categoryId"`
+	ID         uuid.UUID  `db:"id" json:"id"`
 	CategoryID *uuid.UUID `db:"category_id" json:"categoryId"`
 	MerchantID *uuid.UUID `db:"merchant_id" json:"merchantId"`
 	Kind       string     `db:"kind" json:"kind"` // "standard", "transfer"

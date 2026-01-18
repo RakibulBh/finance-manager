@@ -53,8 +53,21 @@ func AuthMiddleware(jwtSecret []byte) func(http.Handler) http.Handler {
                     return
                 }
 
-                // Pass user_id down via context
+                familyIDStr, ok := claims["family_id"].(string)
+                if !ok {
+                    sendError(w, http.StatusUnauthorized, "Invalid token claims")
+                    return
+                }
+
+                familyID, err := uuid.Parse(familyIDStr)
+                if err != nil {
+                    sendError(w, http.StatusUnauthorized, "Invalid family ID in token")
+                    return
+                }
+
+                // Pass user_id and family_id down via context
                 ctx := context.WithValue(r.Context(), "user_id", userID)
+                ctx = context.WithValue(ctx, "family_id", familyID)
                 next.ServeHTTP(w, r.WithContext(ctx))
             } else {
                 sendError(w, http.StatusUnauthorized, "Invalid token")
