@@ -12,6 +12,14 @@ type Config struct {
 	JWTSecret   string `mapstructure:"JWT_SECRET"`
 	Port        string `mapstructure:"PORT"`
 	Environment string `mapstructure:"ENVIRONMENT"`
+
+	// Plaid
+	PlaidClientID string `mapstructure:"PLAID_CLIENT_ID"`
+	PlaidSecret   string `mapstructure:"PLAID_SECRET"`
+	PlaidEnv      string `mapstructure:"PLAID_ENV"`
+
+	// Encryption
+	EncryptionKey string `mapstructure:"ENCRYPTION_KEY"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -29,6 +37,11 @@ func LoadConfig() (*Config, error) {
 	viper.BindEnv("JWT_SECRET")
 	viper.BindEnv("PORT")
 	viper.BindEnv("ENVIRONMENT")
+	viper.BindEnv("PLAID_CLIENT_ID")
+	viper.BindEnv("PLAID_SECRET")
+	viper.BindEnv("PLAID_ENV")
+	viper.BindEnv("ENCRYPTION_KEY")
+
 
 	var cfg Config
 	err = viper.Unmarshal(&cfg)

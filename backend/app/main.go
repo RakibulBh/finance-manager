@@ -14,6 +14,7 @@ import (
 	"github.com/rakibulbh/ai-finance-manager/internal/repository/postgres"
 	"github.com/rakibulbh/ai-finance-manager/internal/rest"
 	authMW "github.com/rakibulbh/ai-finance-manager/internal/rest/middleware"
+	"github.com/rakibulbh/ai-finance-manager/internal/services"
 )
 
 func main() {
@@ -32,12 +33,21 @@ func main() {
 	// 1. Repositories
 	userRepo := postgres.NewUserRepository(dbPool)
 	accountRepo := postgres.NewAccountRepository(dbPool)
+	ledgerRepo := postgres.NewLedgerRepository(dbPool)
+	investmentRepo := postgres.NewInvestmentRepository(dbPool)
+	plaidRepo := postgres.NewPlaidRepository(dbPool)
 
-	// 2. Handlers
+	// 2. Services
+	plaidService := services.NewPlaidService(cfg.PlaidClientID, cfg.PlaidSecret, cfg.PlaidEnv, cfg.EncryptionKey)
+
+	// 3. Handlers
 	authHandler := rest.NewAuthHandler(userRepo, cfg.JWTSecret)
 	accountHandler := rest.NewAccountHandler(accountRepo)
+	transactionHandler := rest.NewTransactionHandler(ledgerRepo)
+	investmentHandler := rest.NewInvestmentHandler(investmentRepo)
+	plaidHandler := rest.NewPlaidHandler(plaidService, plaidRepo)
 
-	// 3. Router Setup
+	// 4. Router Setup
 	r := chi.NewRouter()
 
 	// Base Middleware
@@ -65,8 +75,28 @@ func main() {
 				r.Post("/", accountHandler.Create)
 				r.Get("/", accountHandler.List)
 			})
+
+			r.Route("/transactions", func(r chi.Router) {
+				r.Post("/", transactionHandler.Create)
+			})
+
+			r.Route("/transfers", func(r chi.Router) {
+				r.Post("/", transactionHandler.CreateTransfer)
+			})
+
+			r.Route("/investments", func(r chi.Router) {
+				r.Post("/trade", investmentHandler.CreateTrade)
+			})
+
+			r.Route("/plaid", func(r chi.Router) {
+				r.Post("/create_link_token", plaidHandler.CreateLinkToken)
+				r.Post("/exchange_public_token", plaidHandler.ExchangePublicToken)
+			})
 		})
 	})
+
+
+
 
 	fmt.Printf("Starting application in %s mode...\n", cfg.Environment)
 	fmt.Printf("Server running on port :%s\n", cfg.Port)
