@@ -1,4 +1,4 @@
-name: backend-ci
+name: CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  backend-test:
     runs-on: ubuntu-latest
 
     services:
@@ -43,10 +43,32 @@ jobs:
         go-version: '1.25'
         cache-dependency-path: backend/go.sum
 
-    - name: Run Tests
+    - name: Run Backend Tests
       working-directory: ./backend
       env:
         TEST_DATABASE_URL: postgres://user:password@localhost:5435/finance_manager_test?sslmode=disable
         TEST_REDIS_ADDR: localhost:6379
         JWT_SECRET: test-secret-key-12345678-very-secure
       run: go test -v ./...
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: bun install --frozen-lockfile
+
+    - name: Lint
+      working-directory: ./frontend
+      run: bun run lint
+
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: bun run test --run
