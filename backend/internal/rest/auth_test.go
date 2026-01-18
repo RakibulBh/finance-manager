@@ -59,7 +59,7 @@ func TestAuthHandler_Register_Success(t *testing.T) {
 
 // Test "should not signup with invalid password" (weak password)
 func TestAuthHandler_Register_WeakPassword(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	reqBody := RegisterRequest{
@@ -91,7 +91,7 @@ func TestAuthHandler_Register_WeakPassword(t *testing.T) {
 
 // Test "should not signup with duplicate email"
 func TestAuthHandler_Register_DuplicateEmail(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	// First registration succeeds
@@ -130,7 +130,7 @@ func TestAuthHandler_Register_DuplicateEmail(t *testing.T) {
 
 // Test "should not signup without email or password"
 func TestAuthHandler_Register_MissingFields(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	reqBody := RegisterRequest{
@@ -158,7 +158,7 @@ func TestAuthHandler_Register_MissingFields(t *testing.T) {
 
 // Test "should login existing user and return OAuth tokens"
 func TestAuthHandler_Login_Success(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	// Create a test user
@@ -202,7 +202,7 @@ func TestAuthHandler_Login_Success(t *testing.T) {
 
 // Test "should not login with invalid password"
 func TestAuthHandler_Login_InvalidPassword(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	// Create a test user
@@ -237,7 +237,7 @@ func TestAuthHandler_Login_InvalidPassword(t *testing.T) {
 
 // Test "should not login with non-existent email"
 func TestAuthHandler_Login_NonExistentEmail(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	reqBody := LoginRequest{
@@ -265,7 +265,7 @@ func TestAuthHandler_Login_NonExistentEmail(t *testing.T) {
 
 // Test "should not login without email or password"
 func TestAuthHandler_Login_MissingFields(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	reqBody := LoginRequest{}
@@ -284,7 +284,7 @@ func TestAuthHandler_Login_MissingFields(t *testing.T) {
 
 // Test "should not login with invalid JSON"
 func TestAuthHandler_Login_InvalidJSON(t *testing.T) {
-	store := NewMockUserStore()
+	store := mocks.NewUserStore()
 	handler := NewAuthHandler(store, "test-secret")
 
 	req := httptest.NewRequest("POST", "/login", bytes.NewBuffer([]byte("invalid json")))

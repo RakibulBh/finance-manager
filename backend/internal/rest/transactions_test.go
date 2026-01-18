@@ -57,7 +57,7 @@ func TestTransactionHandler_Create_Success(t *testing.T) {
 
 // Test "should create transaction without merchant"
 func TestTransactionHandler_Create_NoMerchant(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	accountID := uuid.New()
@@ -83,7 +83,7 @@ func TestTransactionHandler_Create_NoMerchant(t *testing.T) {
 
 // Test "should default to current date when not provided"
 func TestTransactionHandler_Create_DefaultDate(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	accountID := uuid.New()
@@ -116,7 +116,7 @@ func TestTransactionHandler_Create_DefaultDate(t *testing.T) {
 
 // Test "should handle invalid JSON"
 func TestTransactionHandler_Create_InvalidJSON(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	req := httptest.NewRequest("POST", "/transactions", bytes.NewBuffer([]byte("invalid json")))
@@ -138,8 +138,8 @@ func TestTransactionHandler_Create_InvalidJSON(t *testing.T) {
 
 // Test "should handle merchant creation failure"
 func TestTransactionHandler_Create_MerchantError(t *testing.T) {
-	store := NewMockTransactionStore()
-	store.merchantError = &MerchantError{Message: "Failed to create merchant"}
+	store := mocks.NewTransactionStore()
+	store.MerchantError = &MerchantError{Message: "Failed to create merchant"}
 	handler := NewTransactionHandler(store)
 
 	accountID := uuid.New()
@@ -170,8 +170,8 @@ func TestTransactionHandler_Create_MerchantError(t *testing.T) {
 
 // Test "should handle transaction creation failure"
 func TestTransactionHandler_Create_TransactionError(t *testing.T) {
-	store := NewMockTransactionStore()
-	store.createError = &TransactionError{Message: "Database error"}
+	store := mocks.NewTransactionStore()
+	store.CreateError = &TransactionError{Message: "Database error"}
 	handler := NewTransactionHandler(store)
 
 	accountID := uuid.New()
@@ -201,7 +201,7 @@ func TestTransactionHandler_Create_TransactionError(t *testing.T) {
 
 // Test "should create transfer successfully"
 func TestTransactionHandler_CreateTransfer_Success(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	fromAccountID := uuid.New()
@@ -237,7 +237,7 @@ func TestTransactionHandler_CreateTransfer_Success(t *testing.T) {
 
 // Test "should default date when creating transfer"
 func TestTransactionHandler_CreateTransfer_DefaultDate(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	fromAccountID := uuid.New()
@@ -264,7 +264,7 @@ func TestTransactionHandler_CreateTransfer_DefaultDate(t *testing.T) {
 
 // Test "should handle invalid JSON for transfer"
 func TestTransactionHandler_CreateTransfer_InvalidJSON(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	req := httptest.NewRequest("POST", "/transfers", bytes.NewBuffer([]byte("invalid json")))
@@ -286,8 +286,8 @@ func TestTransactionHandler_CreateTransfer_InvalidJSON(t *testing.T) {
 
 // Test "should handle transfer creation failure"
 func TestTransactionHandler_CreateTransfer_TransferError(t *testing.T) {
-	store := NewMockTransactionStore()
-	store.transferError = &TransferError{Message: "Insufficient funds"}
+	store := mocks.NewTransactionStore()
+	store.TransferError = &TransferError{Message: "Insufficient funds"}
 	handler := NewTransactionHandler(store)
 
 	fromAccountID := uuid.New()
@@ -319,7 +319,7 @@ func TestTransactionHandler_CreateTransfer_TransferError(t *testing.T) {
 
 // Test "should handle merchant reuse"
 func TestTransactionHandler_Create_ReuseMerchant(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	accountID := uuid.New()
@@ -359,14 +359,14 @@ func TestTransactionHandler_Create_ReuseMerchant(t *testing.T) {
 	}
 
 	// Should only have one merchant ID
-	if len(store.merchants) != 1 {
-		t.Errorf("Expected 1 merchant, got %d", len(store.merchants))
+	if len(store.Merchants) != 1 {
+		t.Errorf("Expected 1 merchant, got %d", len(store.Merchants))
 	}
 }
 
 // Test "should handle different merchants"
 func TestTransactionHandler_Create_DifferentMerchants(t *testing.T) {
-	store := NewMockTransactionStore()
+	store := mocks.NewTransactionStore()
 	handler := NewTransactionHandler(store)
 
 	accountID := uuid.New()
@@ -406,8 +406,8 @@ func TestTransactionHandler_Create_DifferentMerchants(t *testing.T) {
 	}
 
 	// Should have two merchant IDs
-	if len(store.merchants) != 2 {
-		t.Errorf("Expected 2 merchants, got %d", len(store.merchants))
+	if len(store.Merchants) != 2 {
+		t.Errorf("Expected 2 merchants, got %d", len(store.Merchants))
 	}
 }
 

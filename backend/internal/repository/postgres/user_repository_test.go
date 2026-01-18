@@ -8,27 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// MockDB simulates database behavior for testing
-type MockDB struct {
-	users           map[uuid.UUID]models.User
-	passwords       map[uuid.UUID]string
-	emailToID       map[string]uuid.UUID
-	nextID          uuid.UUID
-	createError     error
-	findError       error
-	queryError      error
-	scanError       error
-	shouldDuplicate bool
-}
-
-func NewMockDB() *MockDB {
-	return &MockDB{
-		users:     make(map[uuid.UUID]models.User),
-		passwords: make(map[uuid.UUID]string),
-		emailToID: make(map[string]uuid.UUID),
-		nextID:    uuid.MustParse("00000000-0000-0000-0000-000000000001"),
-	}
-}
+// Tests based on Ruby model/user specifications from maybe/test/models/user_test.rb
 
 // Tests based on Ruby model/user specifications from maybe/test/models/user_test.rb
 
