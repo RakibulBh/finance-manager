@@ -98,6 +98,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    if req.Email == "" || req.Password == "" {
+        sendError(w, http.StatusBadRequest, "Email and password are required")
+        return
+    }
+
     user, hashedPassword, err := h.repo.FindByEmail(r.Context(), req.Email)
     if err != nil {
         if err == pgx.ErrNoRows {
@@ -108,6 +113,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
         }
         return
     }
+
 
     if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.Password)); err != nil {
         sendError(w, http.StatusUnauthorized, "Invalid email or password")

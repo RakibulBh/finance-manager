@@ -81,6 +81,9 @@ func (h *AccountHandler) List(w http.ResponseWriter, r *http.Request) {
 		sendError(w, http.StatusInternalServerError, "Failed to fetch accounts")
 		return
 	}
+	if accounts == nil {
+		accounts = []models.Account{}
+	}
 
 	netWorth, err := h.repo.GetNetWorth(r.Context(), familyID)
 	if err != nil {
