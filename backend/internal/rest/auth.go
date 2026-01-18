@@ -83,13 +83,31 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    // Generate JWT for auto-login
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+        "user_id":   user.ID.String(),
+        "email":     user.Email,
+        "family_id": user.FamilyID.String(),
+        "exp":       time.Now().Add(time.Hour * 24 * 7).Unix(), // 1 week
+    })
+
+    tokenString, err := token.SignedString(h.jwtSecret)
+    if err != nil {
+        logger.Error("Failed to generate token during registration", zap.Error(err))
+        sendError(w, http.StatusInternalServerError, "Registration successful but failed to generate token")
+        return
+    }
+
     // Response format requested: { "data": { ... } }
     response := map[string]interface{}{
         "data": map[string]interface{}{
-            "user_id":    user.ID,
-            "email":      user.Email,
-            "family_id":  user.FamilyID,
-            "message":    "Registration successful",
+            "token": tokenString,
+            "user": map[string]interface{}{
+                "id":        user.ID,
+                "email":     user.Email,
+                "family_id": user.FamilyID,
+            },
+            "message": "Registration successful",
         },
     }
 
