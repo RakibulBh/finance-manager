@@ -82,15 +82,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Response format requested: [{ "data": { ... } }]
-    response := []map[string]interface{}{
-        {
-            "data": map[string]interface{}{
-                "user_id":    user.ID,
-                "email":      user.Email,
-                "family_id":  user.FamilyID,
-                "message":    "Registration successful",
-            },
+    // Response format requested: { "data": { ... } }
+    response := map[string]interface{}{
+        "data": map[string]interface{}{
+            "user_id":    user.ID,
+            "email":      user.Email,
+            "family_id":  user.FamilyID,
+            "message":    "Registration successful",
         },
     }
 
