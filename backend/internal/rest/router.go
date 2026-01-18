@@ -19,7 +19,7 @@ type RouterConfig struct {
 func NewRouter(cfg RouterConfig) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
+	r.Use(authMW.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
